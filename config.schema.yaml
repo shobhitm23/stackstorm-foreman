@@ -23,6 +23,10 @@ connections:
       description: "Password to login to the server"
       required: true
       secret: true
+    
+auto_remediate:
+  type: "object"
+  properties:
     last_checkin:
       type: "object"
       description: "Time frame for last checkin"
