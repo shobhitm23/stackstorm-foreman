@@ -23,4 +23,17 @@ connections:
       description: "Password to login to the server"
       required: true
       secret: true
+    last_checkin:
+      type: "object"
+      description: "Time frame for last checkin"
+      required: false
+      properties:
+        date:
+          type: string
+          description: "Date of last response"
+          required: true
+        time:
+          type: string
+          description: "Time of the day"
+          required: true
   additionalProperties: false
