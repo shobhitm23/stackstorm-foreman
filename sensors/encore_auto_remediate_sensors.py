@@ -15,10 +15,14 @@ class EncoreAutoRemediateSensor(PollingSensor):
         PASSWORD = self._config['connections']['password']
         SERVER = self._config['connections']['server']
         SSL_VERIFY = False
+        
+        queries = self._config['auto_remediate_sensor_queries']
+        """
         query_date = self._config['auto_remediate']['last_checkin']['date']
         query_time = self._config['auto_remediate']['last_checkin']['time']
         query = query_date + " " + query_time
         actual_time = datetime.fromisoformat(query)
+        """
         
     def poll(self):
        session = requests.Session()
@@ -26,23 +30,30 @@ class EncoreAutoRemediateSensor(PollingSensor):
        response.raise_for_status()
        result = response.json()["results"]
        final_list = []
-
-       for obj in result:
-           if "subscription_facet_attributes" in obj:
-               new_obj = {
-                   obj["certname"]: obj["subscription_facet_attributes"]["last_checkin"]}
-               final_list.append(new_obj)
-               server_checkin_time = obj["subscription_facet_attributes"]["last_checkin"]
-               server_checkin_time = server_checkin_time[0:len(server_checkin_time-4)] #string
-               server_checkin_time = datetime.fromisoformat(server_checkin_time) #datetime
-               
-               if actual_time < server_checkin_time:
-                   print("This server responded within the query timeframe")
+    
+       for query in queries:
+           query_date = query['date']
+           query_time = query['time']
+           
+           curr_query = query_date + " " + query_time
+           actual_time = datetime.fromisoformat(curr_query)
+           
+           for obj in result:
+               if "subscription_facet_attributes" in obj:
+                   new_obj = {
+                       obj["certname"]: obj["subscription_facet_attributes"]["last_checkin"]}
+                   final_list.append(new_obj)
+                   server_checkin_time = obj["subscription_facet_attributes"]["last_checkin"]
+                   server_checkin_time = server_checkin_time[0:len(server_checkin_time-4)] #string
+                   server_checkin_time = datetime.fromisoformat(server_checkin_time) #datetime
+                   
+                   if actual_time < server_checkin_time:
+                       print("This server responded within the query timeframe")
+                   else:
+                       print("This server didn't respond since before query time")               
+                   print(new_obj)
                else:
-                   print("This server didn't respond since query time")               
-               print(new_obj)
-           else:
-                print("Subscription facet attributes don't exist")
+                   print("Subscription facet attributes don't exist")
 
        #x = json.dumps(result, indent=4, sort_keys=True)
        
