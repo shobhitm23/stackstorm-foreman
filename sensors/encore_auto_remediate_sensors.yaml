@@ -5,8 +5,8 @@
   poll_interval: 300
   trigger_types:
     -
-      name: "checkin_event"
-      description: "example"
+      name: "auto_remediate_satellite"
+      description: "Trigger to remediate hosts that aren't responding"
       
       payload_schema:
         type: "object"
