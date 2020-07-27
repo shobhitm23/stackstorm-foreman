@@ -1,0 +1,17 @@
+---
+  class_name: "EncoreAutoRemediateSensor"
+  entry_point: "encore_auto_remediate_sensor.py"
+  description: "Sensor to check to make sure servers are responding"
+  poll_interval: 300
+  trigger_types:
+    -
+      name: "checkin_event"
+      description: "example"
+      
+      payload_schema:
+        type: "object"
+        properties:
+          server_name:
+            type: "string"
+          last_checkin:
+            type: "string"
