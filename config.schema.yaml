@@ -36,7 +36,3 @@ auto_remediate_sensor_queries:
         type: string
         description: "Date of last response"
         required: true
-      time:
-        type: string
-        description: "Time of the day"
-        required: true
