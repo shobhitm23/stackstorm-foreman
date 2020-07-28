@@ -18,12 +18,6 @@ class EncoreAutoRemediateSensor(PollingSensor):
         SSL_VERIFY = False
         
         queries = self._config['auto_remediate_sensor_queries']
-        """
-        query_date = self._config['auto_remediate']['last_checkin']['date']
-        query_time = self._config['auto_remediate']['last_checkin']['time']
-        query = query_date + " " + query_time
-        actual_time = datetime.fromisoformat(query)
-        """
         
     def poll(self):
        session = requests.Session()
@@ -34,30 +28,24 @@ class EncoreAutoRemediateSensor(PollingSensor):
     
        for query in queries:
            query_date = query['date']
-           query_time = query['time']
-           
-           curr_query = query_date + " " + query_time
-           actual_time = datetime.fromisoformat(curr_query)
+           actual_day = datetime.fromisoformat(query_date)
            
            for obj in result:
                if "subscription_facet_attributes" in obj:
                    new_obj = {
                        obj["certname"]: obj["subscription_facet_attributes"]["last_checkin"]}
                    final_list.append(new_obj)
-                   server_checkin_time = obj["subscription_facet_attributes"]["last_checkin"]
-                   server_checkin_time = server_checkin_time[0:len(server_checkin_time-4)] #string
-                   server_checkin_time = datetime.fromisoformat(server_checkin_time) #datetime
+                   server_checkin_time = obj["subscription_facet_attributes"]["last_checkin"].split()
+                   server_checkin_day = server_checkin_time[0]
+                   server_checkin_day = datetime.fromisoformat(server_checkin_day) #datetime
                    
-                   if actual_time < server_checkin_time:
+                   if actual_day < server_checkin_day:
                        print("This server responded within the query timeframe")
                    else:
                        print("This server didn't respond since before query time")
-                       self.dispatch_trigger(obj['certname'], server_checkin_time)               
-                   print(new_obj)
+                       self.dispatch_trigger(obj['certname'], server_checkin_day)               
                else:
                    print("Subscription facet attributes don't exist")
-
-       #x = json.dumps(result, indent=4, sort_keys=True)
        
 
     def dispatch_trigger(self, server_name, last_checkin):
