@@ -30,26 +30,24 @@ class EncoreAutoRemediateSensor(PollingSensor):
        response = session.get(SERVER)
        response.raise_for_status()
        result = response.json()["results"]
-       final_list = []
+       #final_list = []
     
        for query in queries:
-           query_date = query['date']
-           actual_day = datetime.fromisoformat(query_date)
+           query_date = query['days']
+           timeline = query_date
+	   timeline = int(timeline.split()[0])
            
            for obj in result:
                if "subscription_facet_attributes" in obj:
-                   new_obj = {
-                       obj["certname"]: obj["subscription_facet_attributes"]["last_checkin"]}
-                   final_list.append(new_obj)
-                   timeline = int(obj["subscription_facet_attributes"]["last_checkin"].split()[0])
-                   server_checkin_date = date.today() - timedelta(days=timeline)
+
+                   server_checkin_date = obj["subscription_facet_attributes"]["last_checkin"]
+                   query_checkin_date = date.today() - timedelta(days=timeline)
                    
-                   if actual_day < server_checkin_date:
+                   if query_checkin_day < server_checkin_date:
                        print("This server responded within the query timeframe")
                    else:
-                       print("This server didn't respond since before query time")
+                       print("This server didn't respond since before query checkin date")
                        self.dispatch_trigger(obj['certname'], server_checkin_date)               
-                   print(new_obj)
                else:
                    print("Subscription facet attributes don't exist")
        
