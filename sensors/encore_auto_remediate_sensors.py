@@ -1,7 +1,7 @@
 import json
 import requests
 from st2reactor.sensor.base import PollingSensor
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 class EncoreAutoRemediateSensor(PollingSensor):
     
@@ -18,6 +18,12 @@ class EncoreAutoRemediateSensor(PollingSensor):
         SSL_VERIFY = False
         
         queries = self._config['auto_remediate_sensor_queries']
+        """
+        query_date = self._config['auto_remediate']['last_checkin']['date']
+        query_time = self._config['auto_remediate']['last_checkin']['time']
+        query = query_date + " " + query_time
+        actual_time = datetime.fromisoformat(query)
+        """
         
     def poll(self):
        session = requests.Session()
@@ -35,15 +41,15 @@ class EncoreAutoRemediateSensor(PollingSensor):
                    new_obj = {
                        obj["certname"]: obj["subscription_facet_attributes"]["last_checkin"]}
                    final_list.append(new_obj)
-                   server_checkin_time = obj["subscription_facet_attributes"]["last_checkin"].split()
-                   server_checkin_day = server_checkin_time[0]
-                   server_checkin_day = datetime.fromisoformat(server_checkin_day) #datetime
+                   timeline = int(obj["subscription_facet_attributes"]["last_checkin"].split()[0])
+                   server_checkin_date = date.today() - timedelta(days=timeline)
                    
-                   if actual_day < server_checkin_day:
+                   if actual_day < server_checkin_date:
                        print("This server responded within the query timeframe")
                    else:
                        print("This server didn't respond since before query time")
-                       self.dispatch_trigger(obj['certname'], server_checkin_day)               
+                       self.dispatch_trigger(obj['certname'], server_checkin_date)               
+                   print(new_obj)
                else:
                    print("Subscription facet attributes don't exist")
        
