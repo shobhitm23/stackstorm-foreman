@@ -32,7 +32,7 @@ auto_remediate_sensor_queries:
     type: "object"
     required: true
     properties:
-      date:
+      days:
         type: string
         description: "Date of last response"
         required: true
