@@ -29,7 +29,10 @@ class ForemanAutoRemediateSensor(PollingSensor):
         session.auth = (self._USERNAME, self._PASSWORD)
         session.verify = self._SSL_VERIFY
         response = session.get(self._url)
-        response.raise_for_status()
+        if response.status_code != 200:
+            print(response.raise_for_status)
+            exit()
+
         result = response.json()
         result_json = json.dumps(result)
         parsed = json.loads(result_json)
