@@ -1,0 +1,17 @@
+---
+  class_name: "ForemanAutoRemediateSensor"
+  entry_point: "foreman_auto_remediate_sensor.py"
+  description: "Sensor to check to make sure servers are responding"
+  poll_interval: 100000
+  trigger_types:
+    -
+      name: "auto_remediate_satellite"
+      description: "Trigger to remediate hosts that aren't responding"
+      
+      payload_schema:
+        type: "object"
+        properties:
+          server_name:
+            type: "string"
+          last_checkin:
+            type: "string"

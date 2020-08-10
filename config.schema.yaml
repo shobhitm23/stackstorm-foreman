@@ -1,6 +1,6 @@
 ---
 foreman:
-  type: "object"
+  type: object
   required: true
   patternProperties:
       "^\\w+":
@@ -8,7 +8,7 @@ foreman:
   additionalProperties: false
 
 connections:
-  type: "object"
+  type: object
   properties:
     server:
       type: string
@@ -23,16 +23,13 @@ connections:
       description: "Password to login to the server"
       required: true
       secret: true
-    
-auto_remediate_sensor_queries:
-  description: "List of queries"
-  type: "array"
+  additionalProperties: false
+
+query:
+  type: object
   required: true
-  items:
-    type: "object"
-    required: true
-    properties:
-      days:
-        type: string
-        description: "Date of last response"
-        required: true
+  properties:
+    days:
+      type: string
+      description: "Days since last response"
+      required: true
