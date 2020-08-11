@@ -19,7 +19,7 @@ class ForemanAutoRemediateSensor(PollingSensor):
         self._PASSWORD = self._config["foreman"]["dev"]["password"]
         self._SERVER = self._config["foreman"]["dev"]["server"]
         self._SSL_VERIFY = False
-        self._query = self._config["query"]['days']
+        self._query = self._config["query"]["days"]
         self._url = "http://{}/".format(self._SERVER)
         self._url = self._url + "api/hosts"
 
@@ -36,23 +36,31 @@ class ForemanAutoRemediateSensor(PollingSensor):
         result = response.json()
         result_json = json.dumps(result)
         parsed = json.loads(result_json)
-        
+
         output_parse = json.dumps(parsed, indent=4, sort_keys=True)
         parsed_list = parsed["results"]
 
-        query_date = int(self._query.split()[0])
-        
+        query_date = int(self._query)
+
         for obj in parsed_list:
-            print(obj)
+            # print(obj)
             if "subscription_facet_attributes" in obj:
-                server_checkin_date = obj["subscription_facet_attributes"]["last_checkin"]
+                server_checkin_date_uni = obj["subscription_facet_attributes"][
+                    "last_checkin"
+                ]
+                # print(type(server_checkin_date))
                 query_checkin_date = date.today() - timedelta(days=query_date)
+                # print(type(query_checkin_date))
+
+                server_checkin_date = datetime.strptime(
+                    server_checkin_date_uni.split()[0], "%Y-%m-%d"
+                ).date()
+                # print(type(server_checkin_date))
 
                 if query_checkin_date < server_checkin_date:
                     print("This server responded within the query timeframe")
-
                 else:
-                    print("This server didn't respond since before query checkin date")
+                    # print("This server didn't respond since before query checkin date")
                     self.dispatch_trigger(obj["certname"], server_checkin_date)
             else:
                 print("Subscription facet attributes don't exist")
@@ -60,7 +68,7 @@ class ForemanAutoRemediateSensor(PollingSensor):
     def dispatch_trigger(self, server_name, last_checkin):
 
         trigger = self._trigger_ref
-        payload = {"server_name": server_name, "last_checkin": last_checkin}
+        payload = {"server_name": server_name, "last_checkin": last_checkin.strftime("%m/%d/%Y")}
 
         self.sensor_service.dispatch(trigger=trigger, payload=payload)
 
