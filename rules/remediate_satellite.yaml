@@ -1,0 +1,14 @@
+---
+name: "remediate_satellite"
+pack: "foreman"
+description: "Remediate Satellite hosts that haven't checked in"
+enabled : true
+
+trigger:
+    type: "foreman.auto_remediate_satellite"
+    parameters: {}
+
+action:
+    ref: core.local
+    parameters:
+        cmd: date
