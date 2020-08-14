@@ -16,20 +16,72 @@ output:
 tasks:
 
     task1:
-        action: core.echo message=<% ctx().server_name %>
+        action: core.echo 
+        input:
+            message: <% ctx().server_name %>
         next:
             - when: <% succeeded() %>
-              publish: <% result().result() %>
+              publish: <% result().stdout() %>
               do:
                 - task2
-
     task2:
         action: core.remote
         input:
             hosts: <% ctx().server_name %>
             username: <% ctx().username %>
             password: <% ctx().password %>
-            cmd: subscription-manager-status
+            cmd: subscription-manager status
+        next:
+            - when: <% succeeded() %>
+              publish: <% result() %>
+              do:
+                  - task3
+    task3:
+        action: core.remote
+        input:
+            hosts: <% ctx().server_name %>
+            username: <% ctx().username %>
+            password: <% ctx().password %>
+            cmd: subscription-manager identity
+        next:
+            - when: <% succeeded() %>
+              publish: <% result() %>
+              do:
+                  - task4
+
+    task4:
+        action: core.remote
+        input:
+            hosts: <% ctx().server_name %>
+            username: <% ctx().username %>
+            password: <% ctx().password %>
+            cmd: subscription-manager unregister
+        next:
+            - when: <% succeeded() %>
+              publish: <% result() %>
+              do:
+                  - task5
+
+    task5:
+        action: core.remote
+        input:
+            hosts: <% ctx().server_name %>
+            username: <% ctx().username %>
+            password: <% ctx().password %>
+            cmd: subscription-manager register --org="EMS" --activationkey="RHEL_7"
+        next:
+            - when: <% succeeded() %>
+              publish: <% result() %>
+              do:
+                  - task6
+
+    task6:
+        action: core.remote
+        input:
+            hosts: <% ctx().server_name %>
+            username: <% ctx().username %>
+            password: <% ctx().password %>
+            cmd: subscription-manager list --consumed
         next:
             - when: <% succeeded() %>
               publish: <% result() %>
