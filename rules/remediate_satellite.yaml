@@ -11,4 +11,4 @@ trigger:
 action:
     ref: "foreman.auto_remediate_satellite"
     parameters:
-        server_name: "nor1devsst03.dev.encore.tech" 
+        server_name: "{{ trigger.server_name }}" 
