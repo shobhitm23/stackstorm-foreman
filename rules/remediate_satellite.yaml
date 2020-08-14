@@ -9,6 +9,6 @@ trigger:
     parameters: {}
 
 action:
-    ref: core.local
+    ref: "foreman.auto_remediate_satellite"
     parameters:
-        cmd: date
+        server_name: "nor1devsst03.dev.encore.tech" 
