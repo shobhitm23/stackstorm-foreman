@@ -42,8 +42,10 @@ class ForemanAutoRemediateSensor(PollingSensor):
 
         query_date = int(self._query)
 
+        count = 0
+
         for obj in parsed_list:
-            # print(obj)
+
             if "subscription_facet_attributes" in obj:
                 server_checkin_date_uni = obj["subscription_facet_attributes"][
                     "last_checkin"
@@ -62,8 +64,10 @@ class ForemanAutoRemediateSensor(PollingSensor):
                 else:
                     # print("This server didn't respond since before query checkin date")
                     self.dispatch_trigger(obj["certname"], server_checkin_date)
+                    count += 1
             else:
                 print("Subscription facet attributes don't exist")
+        print("This is count: " + str(count))
 
     def dispatch_trigger(self, server_name, last_checkin):
 
