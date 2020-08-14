@@ -19,7 +19,7 @@ tasks:
         action: core.echo message=<% ctx().server_name %>
         next:
             - when: <% succeeded() %>
-              publish: <% result().stdout %>
+              publish: <% result().result() %>
               do:
                 - task2
 
@@ -29,7 +29,7 @@ tasks:
             hosts: <% ctx().server_name %>
             username: <% ctx().username %>
             password: <% ctx().password %>
-            cmd: date
+            cmd: subscription-manager-status
         next:
             - when: <% succeeded() %>
               publish: <% result() %>
