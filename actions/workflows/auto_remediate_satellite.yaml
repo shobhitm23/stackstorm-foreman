@@ -1,0 +1,37 @@
+---
+version: 1.0
+
+description: Remediate Satellite hosts that haven't checked in
+
+input:
+    - server_name
+    - username
+    - password
+
+output:
+    - username: <% ctx().username %>
+    - password: <% ctx().password %>
+    - server_name: <% ctx().server_name %>
+
+tasks:
+
+    task1:
+        action: core.echo message=<% ctx().server_name %>
+        next:
+            - when: <% succeeded() %>
+              publish: <% result().stdout %>
+              do:
+                - task2
+
+    task2:
+        action: core.remote
+        input:
+            hosts: <% ctx().server_name %>
+            username: <% ctx().username %>
+            password: <% ctx().password %>
+            cmd: date
+        next:
+            - when: <% succeeded() %>
+              publish: <% result() %>
+              do:
+                  - noop

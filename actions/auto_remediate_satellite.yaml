@@ -1,0 +1,24 @@
+---
+name: auto_remediate_satellite
+runner_type: orquesta
+description: "Remediate satellite hosts"
+enabled: true
+entry_point: workflows/auto_remediate_satellite.yaml
+name: auto_remediate_satellite
+pack: foreman
+parameters:
+    server_name:
+        type: string
+        description: "Server name of host"
+        required: true
+    username:
+        type: string
+        description: "Username"
+        required: true
+        default: "{{ st2kv.system.linux.username }}"
+    password:
+        type: string
+        description: "Password"
+        required: true
+        secret: true
+        default: "{{ st2kv.system.linux.password | decrypt_kv }}"
